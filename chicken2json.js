@@ -1,107 +1,16 @@
-const str = ` 
-planId
-true string
-投资计划id
-code
-false string
-投资编号
-mobile
-false string
-投资人手机号
-status
-false string
-投资状态
-investStart
-false string
-投资时间(起), yyyy-MM-dd
-investEnd
-false string
-投资时间(止), yyyy-MM-dd
-quitStart
-false string
-退出时间(起), yyyy-MM-dd
-quitEnd
-false string
-退出时间(止), yyyy-MM-dd`;
 
 const log = (args) => {
   console.log(args);
 }
 
-class ConverterOld {
-  constructor() {
-
-  }
-
-  list(str) {
-    let result = {};
-    let lines = str.split('\n');
-    log(lines.length);
-    for (let i = 0; i < lines.length; i += 1) {
-      let line = lines[i];
-      let parts = line.split(/\s+/g);
-      let resultItem = {
-        name: parts[0],
-      };
-      parts.splice(0, 3);
-      resultItem.title = parts.join('');
-      let name = resultItem.name;
-      result[name] = resultItem;
-    }
-    log(JSON.stringify(result, null, 2));
-    return result;
-  }
-
-  form(str) {
-    let result = {};
-    let lines = str.split('\n');
-    log(lines.length);
-    for (let i = 0; i < lines.length; i += 1) {
-      let line = lines[i];
-      let parts = line.split(/\s+/g);
-      let resultItem = {
-        name: parts[0],
-        tag: 'Input',
-        default: null,
-        rules: [{ required: false, message: '不能为空' }],
-      };
-      parts.splice(0, 3);
-      resultItem.title = parts.join('');
-
-      let name = resultItem.name;
-      result[name] = resultItem;
-    }
-    log(JSON.stringify(result, null, 2));
-    return result;
-  }
-
-  filter(str) {
-    let result = [];
-    let lines = str.split('\n');
-    log(lines.length);
-    for (let i = 0; i < lines.length; i += 1) {
-      let line = lines[i];
-      let parts = line.split(/\s+/g);
-      let resultItem = {
-        name: parts[0],
-        tag: 'Input',
-        initValue: null,
-        // rules: [{ required: false, message: '不能为空' }],
-      };
-      parts.splice(0, 3);
-      resultItem.title = parts.join('');
-      result.push(resultItem);
-    }
-    log(JSON.stringify(result, null, 2));
-    return result;
-  }
-}
-
 class Converter {
   // 返回格式:[{name:foo,title:bar},]
+
   getNameAndTitle(str) {
     let results = [];
-    const lines = str.replace(/^\s+|\s+$/g, '').split('\n');
+    let lines = str.trim().split('\n');
+    lines = lines.map(line => line.trim())
+    // log(lines)
     for (let i = 0; i < lines.length; i += 3) {
       results.push({
         name: lines[i],
@@ -139,7 +48,15 @@ class Converter {
   }
 
   list(str) {
-    return this.convert(str, 'object', (name, title) => ({ name, title }))
+    return this.convert(str, 'object', (name, title) => {
+      const item = { name, title }
+      if (title.endsWith('金额') || title.endsWith('费')) {
+        item.render = '|dataRender.renderMoney()|'
+      } else if (title.endsWith('日期')) {
+        item.render = '|dataRender.renderMoment()|'
+      }
+      return item
+    })
   }
   form(str) {
     return this.convert(
@@ -163,10 +80,74 @@ class Converter {
   }
 }
 
+
+const str = ` 
+id
+xxx
+资方id
+creditorCode
+ true string
+资方编码
+name
+ true string
+资方名称
+idCardAuth
+ true boolean
+需要实名认证
+needContract
+ true boolean
+需要合同
+needPicture
+ true boolean
+需要身份证照片
+overdue
+ true boolean
+支持延期
+payBack
+ true boolean
+是否要求已还款
+supportDelay
+ true boolean
+允许逾期订单
+createdAt
+ true number
+时间戳
+excelColumnArray
+ true array[object]
+excel报表字段配置
+isDirect
+ true boolean
+是否直投方
+loanChannel
+ true string
+放款渠道
+userGradeMax
+ true number
+芝麻分最大值
+userGradeMin
+ true number
+芝麻分最小值
+userMobileFormat
+ true boolean
+用户手机号是否脱敏
+relativeMobileFormat
+ true boolean
+亲属手机号是否脱敏
+colleagueMobileFormat
+ true boolean
+同事手机号是否脱敏
+minAge
+xxx
+最小年龄(含)
+ `;
+
+
 let c = new Converter();
-c.filter(str);
-
-
+// c.filter(str);
+log(`import dataRender from '../../../utils/QueenAnt/dataRender';`)
+log('export default')
+c.list(str);
+// c.list(str)
 
 
 
